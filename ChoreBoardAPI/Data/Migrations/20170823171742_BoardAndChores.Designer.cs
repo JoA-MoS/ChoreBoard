@@ -11,9 +11,10 @@ using System;
 namespace ChoreBoardAPI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170823171742_BoardAndChores")]
+    partial class BoardAndChores
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,8 +110,6 @@ namespace ChoreBoardAPI.Data.Migrations
                     b.Property<int>("ChoreId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("BoardId");
-
                     b.Property<DateTime>("Created");
 
                     b.Property<string>("CreatedById");
@@ -126,8 +125,6 @@ namespace ChoreBoardAPI.Data.Migrations
                     b.Property<string>("OwnerId");
 
                     b.HasKey("ChoreId");
-
-                    b.HasIndex("BoardId");
 
                     b.HasIndex("CreatedById");
 
@@ -262,11 +259,6 @@ namespace ChoreBoardAPI.Data.Migrations
 
             modelBuilder.Entity("ChoreBoardAPI.Models.Chore", b =>
                 {
-                    b.HasOne("ChoreBoardAPI.Models.Board", "Board")
-                        .WithMany("Chores")
-                        .HasForeignKey("BoardId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("ChoreBoardAPI.Models.ApplicationUser", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");

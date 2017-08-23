@@ -15,6 +15,9 @@ namespace ChoreBoardAPI.Data
         {
         }
 
+        public DbSet<Board> Boards { get; set; }
+        public DbSet<Chore> Chores { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
