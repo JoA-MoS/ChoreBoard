@@ -25,7 +25,6 @@ namespace ChoreBoardAPI.Controllers.api
         }
 
         // GET: api/Chores
-        [Authorize(Roles = "Administrator")]
         [HttpGet]
         public IEnumerable<Chore> GetChores([FromRoute] int boardId)
         {
