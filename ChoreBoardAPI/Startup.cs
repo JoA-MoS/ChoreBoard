@@ -13,6 +13,8 @@ using ChoreBoardAPI.Models;
 using ChoreBoardAPI.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.HttpOverrides;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace ChoreBoardAPI
 {
@@ -44,7 +46,10 @@ namespace ChoreBoardAPI
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
 
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options => {
+                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+             });
 
             services.AddSwaggerGen(c =>
             {
