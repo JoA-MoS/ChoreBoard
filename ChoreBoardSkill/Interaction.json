@@ -1,0 +1,151 @@
+{
+  "intents": [
+    {
+      "name": "AMAZON.CancelIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.HelpIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.StopIntent",
+      "samples": []
+    },
+    {
+      "name": "CreateChore",
+      "samples": [
+        "add {Chore}",
+        "add {Chore} to the chore board"
+      ],
+      "slots": [
+        {
+          "name": "Chore",
+          "type": "CHORES",
+          "samples": [
+            "{Chore}"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GetChores",
+      "samples": [
+        "Chores",
+        "What are my chores"
+      ],
+      "slots": []
+    }
+  ],
+  "types": [
+    {
+      "name": "CHORES",
+      "values": [
+        {
+          "id": null,
+          "name": {
+            "value": "sweep",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "empty dishwasher",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "mop",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "dust",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "vacuum",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "clean the bathrooms",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "wash the dishes",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "clean the counters",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "mow the lawn",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "weed whack",
+            "synonyms": []
+          }
+        }
+      ]
+    }
+  ],
+  "prompts": [
+    {
+      "id": "Elicit.Intent-CreateChore.IntentSlot-Chore",
+      "promptVersion": "1.0",
+      "definitionVersion": "1.0",
+      "variations": [
+        {
+          "type": "PlainText",
+          "value": "What chore do you want to add?"
+        }
+      ]
+    }
+  ],
+  "dialog": {
+    "version": "1.0",
+    "intents": [
+      {
+        "name": "CreateChore",
+        "confirmationRequired": false,
+        "prompts": {},
+        "slots": [
+          {
+            "name": "Chore",
+            "type": "CHORES",
+            "elicitationRequired": true,
+            "confirmationRequired": false,
+            "prompts": {
+              "elicit": "Elicit.Intent-CreateChore.IntentSlot-Chore"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
