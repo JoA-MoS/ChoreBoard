@@ -10,6 +10,7 @@ using ChoreBoardAPI.Models;
 
 namespace ChoreBoardAPI.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class BoardsController : Controller
     {
         private readonly ApplicationDbContext _context;

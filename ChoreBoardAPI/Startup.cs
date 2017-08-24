@@ -12,6 +12,7 @@ using ChoreBoardAPI.Data;
 using ChoreBoardAPI.Models;
 using ChoreBoardAPI.Services;
 using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace ChoreBoardAPI
 {
@@ -47,7 +48,7 @@ namespace ChoreBoardAPI
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { Title = "Chore Board", Version = "v1" });
             });
         }
 
@@ -65,14 +66,20 @@ namespace ChoreBoardAPI
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
+
             app.UseStaticFiles();
 
             app.UseAuthentication();
-
+           
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Chore Board V1");
             });
 
             app.UseMvc(routes =>
@@ -83,5 +90,51 @@ namespace ChoreBoardAPI
             });
 
         }
+
+
+        private async Task CreateRoles(IServiceProvider serviceProvider)
+        {
+            //initializing custom roles 
+            var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            string[] roleNames = { "Administrator" };
+            IdentityResult roleResult;
+
+            foreach (var roleName in roleNames)
+            {
+                var roleExist = await RoleManager.RoleExistsAsync(roleName);
+                if (!roleExist)
+                {
+                    //create the roles and seed them to the database: Question 1
+                    roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+
+            //Here you could create a super user who will maintain the web app
+            var poweruser = new ApplicationUser
+            {
+                Email = Configuration["Superuser:Email"],
+            };
+            //Ensure you have these values in your appsettings.json file
+            string userPWD = Configuration["Superuser:Password"];
+            var _user = await UserManager.FindByEmailAsync(Configuration["Superuser:Email"]);
+
+            if (_user == null)
+            {
+                var createPowerUser = await UserManager.CreateAsync(poweruser, userPWD);
+                if (createPowerUser.Succeeded)
+                {
+                    //here we tie the new user to the role
+                    await UserManager.AddToRoleAsync(poweruser, "Administrator");
+
+                }
+            }
+            else
+            {
+                  await UserManager.AddToRoleAsync(poweruser, "Administrator");
+            }
+        }
     }
+
+
 }

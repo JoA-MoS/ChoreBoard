@@ -8,6 +8,7 @@ using ChoreBoardAPI.Models;
 
 namespace ChoreBoardAPI.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class HomeController : Controller
     {
         public IActionResult Index()

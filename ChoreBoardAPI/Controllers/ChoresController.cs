@@ -63,7 +63,7 @@ namespace ChoreBoardAPI.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ChoreId,Name,Description,BoardId,OwnerId,Created,CreatedById,Modified,ModifiedById")] Chore chore)
+        public async Task<IActionResult> Create([Bind("ChoreId,Name,Description,Deadline,Rollover,BoardId,OwnerId,Created,CreatedById,Modified,ModifiedById")] Chore chore)
         {
             if (ModelState.IsValid)
             {
@@ -103,7 +103,7 @@ namespace ChoreBoardAPI.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ChoreId,Name,Description,BoardId,OwnerId,Created,CreatedById,Modified,ModifiedById")] Chore chore)
+        public async Task<IActionResult> Edit(int id, [Bind("ChoreId,Name,Description,Deadline,Rollover,BoardId,OwnerId,Created,CreatedById,Modified,ModifiedById")] Chore chore)
         {
             if (id != chore.ChoreId)
             {

@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ChoreBoardAPI.Data;
 using ChoreBoardAPI.Models;
+using Microsoft.AspNetCore.Authorization;
+using ChoreBoardAPI.Models.dto;
+using System.Security.Claims;
 
 namespace ChoreBoardAPI.Controllers.api
 {
     [Produces("application/json")]
-    [Route("api/Chores")]
+    [Route("api/boards/{boardId:int}/chores/")]
     public class ChoresController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,25 +25,17 @@ namespace ChoreBoardAPI.Controllers.api
         }
 
         // GET: api/Chores
+        [Authorize(Roles = "Administrator")]
         [HttpGet]
-        public IEnumerable<Chore> GetChores()
-        {
-            return _context.Chores;
-        }
-
-        // GET: /api/boards/{boardId}/Chores
-        [HttpGet("~/api/boards/{boardId:int}/chores")]
-        public IEnumerable<Chore> GetBoardChores([FromRoute] int boardId)
+        public IEnumerable<Chore> GetChores([FromRoute] int boardId)
         {
             return _context.Chores.Where(c => c.BoardId == boardId);
         }
 
-
-
+     
         // GET: api/Chores/5
         [HttpGet("{id}")]
-        [HttpGet("~/api/boards/{boardId:int}/chores/{id}")]
-        public async Task<IActionResult> GetChore([FromRoute] int id)
+        public async Task<IActionResult> GetChore([FromRoute] int boardId, [FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
@@ -59,7 +54,7 @@ namespace ChoreBoardAPI.Controllers.api
 
         // PUT: api/Chores/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutChore([FromRoute] int id, [FromBody] Chore chore)
+        public async Task<IActionResult> PutChore([FromRoute] int boardId, [FromRoute] int id, [FromBody] Chore chore)
         {
             if (!ModelState.IsValid)
             {
@@ -94,12 +89,18 @@ namespace ChoreBoardAPI.Controllers.api
 
         // POST: api/Chores
         [HttpPost]
-        public async Task<IActionResult> PostChore([FromBody] Chore chore)
+        public async Task<IActionResult> PostChore([FromRoute] int boardId, [FromBody] NewChoreDTO newChore)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            Chore chore = new Chore
+            {
+                Name = newChore.Name,
+                Description = newChore.Description,
+                BoardId = boardId
+            };
 
             _context.Chores.Add(chore);
             await _context.SaveChangesAsync();
@@ -109,7 +110,7 @@ namespace ChoreBoardAPI.Controllers.api
 
         // DELETE: api/Chores/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteChore([FromRoute] int id)
+        public async Task<IActionResult> DeleteChore([FromRoute] int boardId, [FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
