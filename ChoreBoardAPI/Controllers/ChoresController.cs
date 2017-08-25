@@ -7,16 +7,18 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ChoreBoardAPI.Data;
 using ChoreBoardAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace ChoreBoardAPI.Controllers
 {
     public class ChoresController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public ChoresController(ApplicationDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ChoresController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Chores
@@ -51,10 +53,11 @@ namespace ChoreBoardAPI.Controllers
         // GET: Chores/Create
         public IActionResult Create()
         {
-            ViewData["BoardId"] = new SelectList(_context.Boards, "BoardId", "BoardId");
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["ModifiedById"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id");
+            ViewData["BoardId"] = new SelectList(_context.Boards, "BoardId", "Name");
+            //ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Email");
+            //ViewData["ModifiedById"] = new SelectList(_context.Users, "Id", "Email");
+            //ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Email");
+
             return View();
         }
 
@@ -65,16 +68,24 @@ namespace ChoreBoardAPI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ChoreId,Name,Description,Deadline,Rollover,BoardId,OwnerId,Created,CreatedById,Modified,ModifiedById")] Chore chore)
         {
+            var userId = _userManager.GetUserId(User);
             if (ModelState.IsValid)
             {
+                chore.CreatedById = userId;
+                chore.Created = DateTime.UtcNow;
+                chore.ModifiedById = userId;
+                chore.Modified = DateTime.UtcNow;
+
                 _context.Add(chore);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BoardId"] = new SelectList(_context.Boards, "BoardId", "BoardId", chore.BoardId);
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Id", chore.CreatedById);
-            ViewData["ModifiedById"] = new SelectList(_context.Users, "Id", "Id", chore.ModifiedById);
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", chore.OwnerId);
+            ViewData["BoardId"] = new SelectList(_context.Boards, "BoardId", "Name", chore.BoardId);
+
+            //ViewData["BoardId"] = new SelectList(_context.Boards, "BoardId", "BoardId", chore.BoardId);
+            //ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Id", chore.CreatedById);
+            //ViewData["ModifiedById"] = new SelectList(_context.Users, "Id", "Id", chore.ModifiedById);
+            //ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", chore.OwnerId);
             return View(chore);
         }
 
@@ -105,6 +116,7 @@ namespace ChoreBoardAPI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ChoreId,Name,Description,Deadline,Rollover,BoardId,OwnerId,Created,CreatedById,Modified,ModifiedById")] Chore chore)
         {
+            var userId = _userManager.GetUserId(User);
             if (id != chore.ChoreId)
             {
                 return NotFound();
@@ -114,6 +126,8 @@ namespace ChoreBoardAPI.Controllers
             {
                 try
                 {
+                    chore.ModifiedById = userId;
+                    chore.Modified = DateTime.UtcNow;
                     _context.Update(chore);
                     await _context.SaveChangesAsync();
                 }

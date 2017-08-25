@@ -8,7 +8,7 @@
 // 1. Text strings =====================================================================================================
 //    Modify these strings and messages to change the behavior of your Lambda function
 
-
+var myRequest;
 // 2. Skill Code =======================================================================================================
 
 
@@ -33,30 +33,20 @@ var handlers = {
         httpGet(myRequest, (myResult) => {
             console.log("sent     : " + myRequest);
             console.log("received : " + myResult);
-            this.emit(':tell', 'Your chore today is ' + myResult);
+            this.emit(':tell', 'Your chors today are ' + sayArray(myResult, 'and'));
         }
         );
 
     },
+
     'CreateChore': function () {
-        httpGet(myRequest, (myResult) => {
-            console.log("sent     : " + myRequest);
-            console.log("received : " + myResult);
-            this.emit(':tell', 'Your chore today is ' + myResult);
-        }
-        );
-    },
-
-    'MyIntent': function () {
-
-        var pop = 0;
-        var myRequest = 'Virginia';
-
+        var chore = this.event.request.intent.slots.Chore.value;
+        myRequest = chore;
         httpPost(myRequest, myResult => {
-            console.log("sent     : " + myRequest);
-            console.log("received : " + myResult);
+            console.log("sent     : " + JSON.stringify(myRequest));
+            console.log("received : " + JSON.stringify(myResult));
 
-            this.emit(':tell', 'The population of ' + myRequest + ' is ' + myResult);
+            this.emit(':tell', 'The ' + myResult + ' chore was created');
 
         }
         );
@@ -66,25 +56,18 @@ var handlers = {
 
 
 //    END of Intent Handlers {} ========================================================================================
-// 3. Helper Function  =================================================================================================
+// Helper Functions  =================================================================================================
 
 
 var http = require('http');
-// http is a default part of Node.JS.  Read the developer doc:  http://nodejs.org/api/http.html
-// try other APIs such as the current bitcoin price : http://btc-e.com/api/2/btc_usd/ticker  returns ticker.last
+
 
 function httpGet(myData, callback) {
 
-    // GET is a web service request that is fully defined by a URL string
-    // Try GET in your browser:
-    // http://cp6gckjt97.execute-api.us-east-1.amazonaws.com/prod/stateresource?usstate=New%20Jersey
-
-
-    // Update these options with the details of the web service you would like to call
     var options = {
         host: '34.209.13.220',
         port: 80,
-        path: '/api/boards/1/chores/1',
+        path: '/api/boards/1/chores',
         method: 'GET',
 
         // if x509 certs are required:
@@ -103,12 +86,12 @@ function httpGet(myData, callback) {
         res.on('end', () => {
             // we have now received the raw return data in the returnData variable.
             // We can see it in the log output via:
-            // console.log(JSON.stringify(returnData))
+            console.log(JSON.stringify(returnData))
             // we may need to parse through it to extract the needed data
+            var choreObj = JSON.parse(returnData)
+            var choreArr = choreObj.map(function (a) { return a.name; });
 
-            var pop = JSON.parse(returnData).name;
-
-            callback(pop);  // this will execute whatever function the caller defined, with one argument
+            callback(choreArr);  // this will execute whatever function the caller defined, with one argument
 
         });
 
@@ -125,8 +108,11 @@ function httpPost(myData, callback) {
     // http://cp6gckjt97.execute-api.us-east-1.amazonaws.com/prod/stateresource?usstate=New%20Jersey
 
 
-    var post_data = { "usstate": myData };
-
+    var post_data = {
+        name: myData,
+        boardId: 1
+    }
+    console.log(JSON.stringify(post_data));
     var post_options = {
         host: '34.209.13.220',
         port: 80,
@@ -148,13 +134,22 @@ function httpPost(myData, callback) {
             // this particular API returns a JSON structure:
             // returnData: {"usstate":"New Jersey","population":9000000}
 
-            population = JSON.parse(returnData).population;
-
-            callback(population);
+            callback(JSON.parse(returnData).name);
 
         });
     });
     post_req.write(JSON.stringify(post_data));
     post_req.end();
 
+}
+
+// ========================================================
+//  helper functions
+// ========================================================
+
+function sayArray(myData, andor) {
+    // the first argument is an array [] of items
+    // the second argument is the list penultimate word; and/or/nor etc.
+    var listString = [myData.slice(0, -1).join(', '), myData.slice(-1)[0]].join(myData.length < 2 ? '' : ', ' + andor + ' ');
+    return (listString);
 }

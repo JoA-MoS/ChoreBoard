@@ -11,7 +11,7 @@ using ChoreBoardAPI.Models;
 namespace ChoreBoardAPI.Controllers.api
 {
     [Produces("application/json")]
-    [Route("api/Boards")]
+    [Route("api/boards")]
     public class BoardsController : Controller
     {
         private readonly ApplicationDbContext _context;

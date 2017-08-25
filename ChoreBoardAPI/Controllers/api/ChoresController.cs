@@ -24,15 +24,15 @@ namespace ChoreBoardAPI.Controllers.api
             _context = context;
         }
 
-        // GET: api/Chores
+        // GET: api/boards/{boardId:int}/chores
         [HttpGet]
-        public IEnumerable<Chore> GetChores([FromRoute] int boardId)
+        public IEnumerable<Chore> GetChores([FromRoute] int boardId, [FromQuery] bool includeCompleted=false)
         {
-            return _context.Chores.Where(c => c.BoardId == boardId);
+            return _context.Chores.Where(c => c.BoardId == boardId && (c.Completed==false || includeCompleted==true));
         }
 
      
-        // GET: api/Chores/5
+        // GET: api/boards/{boardId:int}/chores/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetChore([FromRoute] int boardId, [FromRoute] int id)
         {
@@ -51,7 +51,7 @@ namespace ChoreBoardAPI.Controllers.api
             return Ok(chore);
         }
 
-        // PUT: api/Chores/5
+        // PUT: api/boards/{boardId:int}/chores/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutChore([FromRoute] int boardId, [FromRoute] int id, [FromBody] Chore chore)
         {
@@ -86,7 +86,8 @@ namespace ChoreBoardAPI.Controllers.api
             return NoContent();
         }
 
-        // POST: api/Chores
+        // https://stackoverflow.com/questions/15875443/getting-date-using-day-of-the-week
+        // POST: api/boards/{boardId:int}/chores
         [HttpPost]
         public async Task<IActionResult> PostChore([FromRoute] int boardId, [FromBody] NewChoreDTO newChore)
         {
@@ -107,7 +108,7 @@ namespace ChoreBoardAPI.Controllers.api
             return CreatedAtAction("GetChore", new { id = chore.ChoreId }, chore);
         }
 
-        // DELETE: api/Chores/5
+        // DELETE: api/boards/{boardId:int}/chores/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteChore([FromRoute] int boardId, [FromRoute] int id)
         {
@@ -123,6 +124,52 @@ namespace ChoreBoardAPI.Controllers.api
             }
 
             _context.Chores.Remove(chore);
+            await _context.SaveChangesAsync();
+
+            return Ok(chore);
+        }
+
+
+
+        // Complete Chore: api/boards/{boardId:int}/chores/5/complete
+        [HttpPost("{id}/complete")]
+        public async Task<IActionResult> CompleteChore([FromRoute] int boardId, [FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var chore = await _context.Chores.SingleOrDefaultAsync(m => m.ChoreId == id);
+            if (chore == null)
+            {
+                return NotFound();
+            }
+            chore.Completed = true;
+           
+            await _context.SaveChangesAsync();
+
+            return Ok(chore);
+        }
+
+
+
+        // Complete Chore: api/boards/{boardId:int}/chores/5/complete
+        [HttpDelete("{id}/complete")]
+        public async Task<IActionResult> UnCompleteChore([FromRoute] int boardId, [FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var chore = await _context.Chores.SingleOrDefaultAsync(m => m.ChoreId == id);
+            if (chore == null)
+            {
+                return NotFound();
+            }
+            chore.Completed = false;
+
             await _context.SaveChangesAsync();
 
             return Ok(chore);
