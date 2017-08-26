@@ -60,7 +60,7 @@ var handlers = {
 
 
 var http = require('http');
-
+var qs = require('querystring');
 
 function httpGet(myData, callback) {
 
@@ -84,15 +84,10 @@ function httpGet(myData, callback) {
         });
 
         res.on('end', () => {
-            // we have now received the raw return data in the returnData variable.
-            // We can see it in the log output via:
             console.log(JSON.stringify(returnData))
-            // we may need to parse through it to extract the needed data
             var choreObj = JSON.parse(returnData)
             var choreArr = choreObj.map(function (a) { return a.name; });
-
             callback(choreArr);  // this will execute whatever function the caller defined, with one argument
-
         });
 
     });
@@ -150,6 +145,6 @@ function httpPost(myData, callback) {
 function sayArray(myData, andor) {
     // the first argument is an array [] of items
     // the second argument is the list penultimate word; and/or/nor etc.
-    var listString = [myData.slice(0, -1).join(', '), myData.slice(-1)[0]].join(myData.length < 2 ? '' : ', ' + andor + ' ');
+    var listString = [myData.slice(0, -1).join(', '), myData.slice(-1)[0]].join(myData.length < 2 ? '' : ' ' + andor + ' ');
     return (listString);
 }

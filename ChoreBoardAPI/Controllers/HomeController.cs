@@ -13,8 +13,8 @@ namespace ChoreBoardAPI.Controllers
     {
         public IActionResult Index()
         {
-            //return View();
-            return RedirectToAction("Index", "Chores");
+            return View();
+            //return RedirectToAction("Index", "Chores");
         }
 
         public IActionResult About()

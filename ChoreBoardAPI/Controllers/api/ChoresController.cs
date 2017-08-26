@@ -31,9 +31,10 @@ namespace ChoreBoardAPI.Controllers.api
             return _context.Chores.Where(c => c.BoardId == boardId && (c.Completed==false || includeCompleted==true));
         }
 
+
      
         // GET: api/boards/{boardId:int}/chores/5
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetChore([FromRoute] int boardId, [FromRoute] int id)
         {
             if (!ModelState.IsValid)
@@ -52,7 +53,7 @@ namespace ChoreBoardAPI.Controllers.api
         }
 
         // PUT: api/boards/{boardId:int}/chores/5
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> PutChore([FromRoute] int boardId, [FromRoute] int id, [FromBody] Chore chore)
         {
             if (!ModelState.IsValid)
@@ -109,7 +110,7 @@ namespace ChoreBoardAPI.Controllers.api
         }
 
         // DELETE: api/boards/{boardId:int}/chores/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteChore([FromRoute] int boardId, [FromRoute] int id)
         {
             if (!ModelState.IsValid)
@@ -132,7 +133,7 @@ namespace ChoreBoardAPI.Controllers.api
 
 
         // Complete Chore: api/boards/{boardId:int}/chores/5/complete
-        [HttpPost("{id}/complete")]
+        [HttpPost("{id:int}/complete")]
         public async Task<IActionResult> CompleteChore([FromRoute] int boardId, [FromRoute] int id)
         {
             if (!ModelState.IsValid)
@@ -150,6 +151,30 @@ namespace ChoreBoardAPI.Controllers.api
             await _context.SaveChangesAsync();
 
             return Ok(chore);
+        }
+
+        // Complete Chore: api/boards/{boardId:int}/chores/5/complete
+        [HttpPost("complete")]
+        public async Task<IActionResult> CompleteAllChores([FromRoute] int boardId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var chores = _context.Chores.Where(c => c.BoardId == boardId);
+            if (chores == null)
+            {
+                return NotFound();
+            }
+            foreach (Chore chore in chores)
+            {
+                chore.Completed = true;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(chores);
         }
 
 
